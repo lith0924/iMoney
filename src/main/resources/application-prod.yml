@@ -1,0 +1,129 @@
+# 生产环境（必须通过环境变量注入数据库等敏感信息，勿在仓库中写死）
+server:
+  undertow:
+    buffer-size: 1024
+    direct-buffers: true
+    threads:
+      io: 16
+      worker: 400
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: ${REDIS_DB:0}
+    ssl: ${REDIS_SSL:false}
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cache:
+    ehcache:
+      config: classpath:config/ehcache.xml
+  servlet:
+    multipart:
+      max-file-size: 256MB
+      max-request-size: 1024MB
+  web:
+    resources:
+      add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+social:
+  enabled: false
+
+mybatis-plus:
+  mapper-locations: classpath:org/springblade/**/mapper/*Mapper.xml
+  typeAliasesPackage: org.springblade.**.entity
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_id
+      insert-strategy: not_null
+      update-strategy: not_null
+      where-strategy: not_null
+      table-underline: true
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+knife4j:
+  enable: true
+  basic:
+    enable: false
+    username: blade
+    password: blade
+  setting:
+    enableSwaggerModels: true
+    enableDocumentManage: true
+    enableHost: false
+    enableHostText: http://localhost
+    enableRequestCache: true
+    enableFilterMultipartApis: false
+    enableFilterMultipartApiMethodType: POST
+    language: zh-CN
+    enableFooter: false
+    enableFooterCustom: true
+    footerCustomContent: Copyright © 2022 SpringBlade All Rights Reserved
+
+swagger:
+  title: SpringBlade 接口文档系统
+  description: SpringBlade 接口文档系统
+  version: 3.5.0
+  license: Powered By SpringBlade
+  licenseUrl: https://bladex.vip
+  terms-of-service-url: https://bladex.vip
+  contact:
+    name: iMoney
+    email: ""
+    url: https://github.com/your-org/imoney
+
+oss:
+  enabled: false
+
+blade:
+  prop:
+    upload-domain: ${UPLOAD_DOMAIN}
+    remote-mode: ${REMOTE_MODE:false}
+    remote-path: ${REMOTE_PATH:/var/www/html}
+    remote-path-iis: ${REMOTE_PATH_IIS:D://iis/html}
+    log-mode: ${LOG_MODE:true}
+  jackson:
+    null-to-empty: false
+  token:
+    sign-key: ${BLADE_TOKEN_SIGN_KEY}
+  xss:
+    enabled: true
+    skip-url:
+      - /blade-test/**
+      - /blade-business/ilink/**
+      - /ilink-qr/**
+  secure:
+    skip-url:
+      - /blade-test/**
+      - /blade-business/ilink/**
+      - /ilink-qr/**
+    client:
+      - client-id: sword
+        path-patterns:
+          - /blade-sword/**
+      - client-id: saber
+        path-patterns:
+          - /blade-saber/**
+  tenant:
+    column: tenant_id
+    tables: []
+
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: ${LOG_PATH:/var/log/imoney}

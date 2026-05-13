@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.system.mapper.SysFileMapper">
+    <resultMap id="Entity" type="org.springblade.modules.system.entity.SysFile">
+        <result column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="biz" property="biz"/>
+        <result column="type" property="type"/>
+        <result column="type_num" property="typeNum"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_path" property="filePath"/>
+        <result column="size" property="size"/>
+        <result column="video_time" property="videoTime"/>
+        <result column="file_png_path" property="filePngPath"/>
+        <result column="create_user" property="createUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="update_time" property="updateTime"/>
+
+    </resultMap>
+
+    <sql id="base_column">
+        ${alias}
+        .
+        id
+        ,
+        ${alias}
+        .
+        parent_id,
+        ${alias}
+        .
+        biz,
+        ${alias}
+        .
+        type,
+        ${alias}
+        .
+        type_num,
+        ${alias}
+        .
+        file_name,
+        ${alias}
+        .
+        file_path,
+        ${alias}
+        .
+        size,
+        ${alias}
+        .
+        video_time,
+        ${alias}
+        .
+        file_png_path,
+        ${alias}
+        .
+        is_del,
+        ${alias}
+        .
+        create_user,
+        ${alias}
+        .
+        create_time,
+        ${alias}
+        .
+        update_user,
+        ${alias}
+        .
+        update_time
+    </sql>
+
+
+    <select id="selectByPage" resultMap="Entity">
+        select
+        <include refid="base_column">
+            <property name="alias" value="t"/>
+        </include>
+        from sys_file as t
+        order by t.create_time Desc
+    </select>
+
+    <select id="selectById" resultMap="Entity">
+        select
+        <include refid="base_column">
+            <property name="alias" value="t"/>
+        </include>
+        from sys_file as t
+        where t.id=#{id}
+    </select>
+    <select id="selectFileList" resultType="org.springblade.modules.system.entity.SysFile">
+        select *
+        from sys_file
+        where parent_id = #{id}
+    </select>
+
+    <delete id="deleteSysFileById">
+        update sys_file
+        SET `is_del`= 1
+        where id = #{id}
+    </delete>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO sys_file (
+        id,
+        type,
+        file_name,
+        file_path,
+        is_deleted,
+        create_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.type},
+            #{item.fileName},
+            #{item.filePath},
+            #{item.isDeleted},
+            #{item.createTime}
+            )
+        </foreach>
+    </insert>
+</mapper>

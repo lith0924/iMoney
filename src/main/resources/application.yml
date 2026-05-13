@@ -1,0 +1,175 @@
+#服务器配置
+server:
+  port: 8183
+  undertow:
+    # 以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
+    buffer-size: 1024
+    # 是否分配的直接内存
+    direct-buffers: true
+    # 线程配置
+    threads:
+      # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+      io: 16
+      # 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载
+      worker: 400
+  servlet:
+    # 编码配置
+    encoding:
+      charset: UTF-8
+      force: true
+
+#spring配置
+spring:
+  application:
+    name: prevent-${spring.profiles.active}
+  cache:
+    ehcache:
+      config: classpath:config/ehcache.xml
+  servlet:
+    multipart:
+      location: ${tempPath}
+      max-file-size: 256MB
+      max-request-size: 1024MB
+  web:
+    resources:
+      add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  profiles:
+    active: dev
+
+
+# mybatis
+mybatis-plus:
+  mapper-locations: classpath:org/springblade/**/mapper/*Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: org.springblade.**.entity
+  global-config:
+    # 关闭MP3.0自带的banner
+    banner: false
+    db-config:
+      #主键类型  0:"数据库ID自增", 1:"不操作", 2:"用户输入ID",3:"数字型snowflake", 4:"全局唯一ID UUID", 5:"字符串型snowflake";
+      id-type: assign_id
+      #字段策略
+      insert-strategy: not_null
+      update-strategy: not_null
+      where-strategy: not_null
+      #驼峰下划线转换
+      table-underline: true
+      # 逻辑删除配置
+      # 逻辑删除全局值（1表示已删除，这也是Mybatis Plus的默认配置）
+      logic-delete-value: 1
+      # 逻辑未删除全局值（0表示未删除，这也是Mybatis Plus的默认配置）
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+#knife4j配置
+knife4j:
+  #启用
+  enable: true
+  #基础认证
+  basic:
+    enable: false
+    username: blade
+    password: blade
+  #增强配置
+  setting:
+    enableSwaggerModels: true
+    enableDocumentManage: true
+    enableHost: false
+    enableHostText: http://localhost
+    enableRequestCache: true
+    enableFilterMultipartApis: false
+    enableFilterMultipartApiMethodType: POST
+    language: zh-CN
+    enableFooter: false
+    enableFooterCustom: true
+    footerCustomContent: Copyright © 2022 SpringBlade All Rights Reserved
+
+#swagger配置信息
+swagger:
+  title: i-money 接口文档
+  description: 记账业务 API
+  version: 3.5.0
+  license: Powered By SpringBlade
+  licenseUrl: https://bladex.vip
+  terms-of-service-url: https://bladex.vip
+  contact:
+    name: iMoney
+    email: ""
+    url: https://github.com/your-org/imoney
+
+# 脚手架 blade-core-oss 默认对接七牛；本项目系统附件由 SysFileService 走下方 aliOss（阿里云），此处关闭七牛。
+oss:
+  enabled: false
+
+# 第三方 OAuth 未接入记账流程，关闭以免加载占位配置
+social:
+  enabled: false
+
+#blade配置
+blade:
+  #jackson配置
+  jackson:
+    #null自动转空值
+    null-to-empty: false
+  token:
+    # 生产环境务必通过环境变量 BLADE_TOKEN_SIGN_KEY 覆盖（建议 32 位以上随机串）
+    sign-key: ${BLADE_TOKEN_SIGN_KEY:change-me-32chars-min-jwt-secret!!}
+  xss:
+    enabled: true
+    skip-url:
+      - /blade-test/**
+      - /blade-business/ilink/**
+      - /ilink-qr/**
+  secure:
+    skip-url:
+      - /blade-test/**
+      - /blade-business/ilink/**
+      - /ilink-qr/**
+    client:
+      - client-id: sword
+        path-patterns:
+          - /blade-sword/**
+      - client-id: saber
+        path-patterns:
+          - /blade-saber/**
+  tenant:
+    column: tenant_id
+    tables: []
+
+# 本地上传临时目录（可设 TEMP_PATH 覆盖）
+tempPath: ${TEMP_PATH:${user.home}/imoney-tmp}
+# 返回给前端的文件访问前缀（使用 OSS 时一般为 OSS 域名；本地调试可与服务端口一致）
+interviewPath: ${PUBLIC_FILE_BASE_URL:http://127.0.0.1:8183/file/}
+# 阿里云 OSS：仅通过环境变量注入，勿将密钥写入仓库
+aliOss:
+  domain: ${ALI_OSS_DOMAIN:https://your-bucket.oss-cn-hangzhou.aliyuncs.com}
+  AccessKeySecret: ${ALI_OSS_ACCESS_KEY_SECRET:}
+  OSSAccessKeyId: ${ALI_OSS_ACCESS_KEY_ID:}
+  bucket: ${ALI_OSS_BUCKET:your-bucket}
+  region: ${ALI_OSS_REGION:oss-cn-hangzhou.aliyuncs.com}
+
+# 智谱 GLM（可选；不配则 AI 相关接口不可用）
+imai:
+  zhipu:
+    api-key: ${IMAI_ZHIPU_API_KEY:}
+    model: ${IMAI_ZHIPU_MODEL:glm-4-flash}
+
+imoney:
+  ilink:
+    poll-delay-ms: 1000
+    connect-timeout-ms: 35000
+    read-timeout-ms: 35000
+    write-timeout-ms: 35000
+    http-max-retries: 3
+    retry-base-delay-ms: 1000
+    retry-max-delay-ms: 10000
+    heartbeat-enabled: false
+    heartbeat-interval-ms: 30000
+    channel-version: 1.0.0
+    login-wait-seconds: 60

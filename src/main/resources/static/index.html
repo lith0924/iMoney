@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 接口根：留空时，在 JetBrains 内置预览（63342）下会自动指向本机 Spring Boot（默认 8183）；其它情况可填 /api 或 https://api.example.com；也可用 ?apiBase= -->
+  <meta name="imoney-api-base" content="" />
+  <title>iMoney · 扫码登录</title>
+  <!-- 脚本在 classpath:/static/js/，Spring 映射为 /js/**；IDE 打开 static 下本页时同目录 js 也可加载 -->
+  <script src="js/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 20px;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f4f6f9;
+      color: #1a1a1a;
+    }
+    h1 {
+      margin: 0 0 20px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    #qr-wrap {
+      width: 280px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+    #qr-wrap img { max-width: 100%; border-radius: 8px; }
+    button {
+      margin-top: 20px;
+      padding: 10px 28px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 999px;
+      background: #1e293b;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover { background: #334155; }
+    button:active { transform: scale(0.98); }
+    .hint {
+      margin-top: 16px;
+      font-size: 0.72rem;
+      color: #64748b;
+      letter-spacing: 0.02em;
+    }
+    .err {
+      margin-top: 10px;
+      font-size: 0.72rem;
+      color: #dc2626;
+      max-width: 280px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>iMoney · 扫码登录</h1>
+  <div id="qr-wrap"></div>
+  <button type="button" id="btn">刷新二维码</button>
+  <p class="hint">扫描二维码连接iMoney</p>
+  <div class="err" id="err"></div>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('btn');
+      var qrWrap = document.getElementById('qr-wrap');
+      var err = document.getElementById('err');
+
+      function showErr(msg) {
+        err.textContent = msg || '';
+      }
+
+      /** meta / ?apiBase= / window.IMONEY_API_BASE */
+      function explicitApiRoot() {
+        var meta = document.querySelector('meta[name="imoney-api-base"]');
+        var fromMeta = meta && meta.getAttribute('content');
+        var q = new URLSearchParams(window.location.search).get('apiBase');
+        var w = typeof window.IMONEY_API_BASE === 'string' ? window.IMONEY_API_BASE : '';
+        return (w || q || fromMeta || '').trim().replace(/\/$/, '');
+      }
+
+      /**
+       * JetBrains「在浏览器中打开」等内置静态服务：当前页在 63342 或 URL 含工程里的 static 路径，
+       * 若仍用相对地址会把 blade-business 拼到 static 目录下（错误）。此时默认请求本机 Spring Boot。
+       */
+      function idePreviewApiRoot() {
+        var port = String(window.location.port || '');
+        var path = window.location.pathname || '';
+        if (port === '63342' || path.indexOf('src/main/resources/static') !== -1) {
+          return 'http://127.0.0.1:8183';
+        }
+        return '';
+      }
+
+      /**
+       * @param relPath 不以 / 开头，如 blade-business/ilink/login/start
+       */
+      function resolveRequestUrl(relPath) {
+        relPath = String(relPath || '').replace(/^\//, '');
+        var root = explicitApiRoot() || idePreviewApiRoot();
+        if (root) {
+          if (/^https?:\/\//i.test(root)) {
+            return root + '/' + relPath;
+          }
+          var origin = window.location.origin;
+          var basePath = root.charAt(0) === '/' ? root : '/' + root;
+          return origin + basePath.replace(/\/$/, '') + '/' + relPath;
+        }
+        return new URL(relPath, window.location.href).toString();
+      }
+
+      function fetchPost(relPath) {
+        var url = resolveRequestUrl(relPath);
+        return fetch(url, { method: 'POST', credentials: 'omit' }).then(function (res) {
+          return res.text().then(function (text) {
+            return { res: res, text: text, url: url };
+          });
+        });
+      }
+
+      function pairToBody(pair) {
+        var res = pair.res;
+        var text = pair.text;
+        var t = (text || '').trim();
+        if (t.charAt(0) === '<') {
+          var hint404 = res.status === 404
+            ? ' 若页面在子路径下，勿用手写绝对路径；本页已按当前地址解析接口。仍 404 时请确认 Nginx 把同前缀下的 /blade-business/ 转到 Spring Boot，或在 meta「imoney-api-base」填写网关前缀。'
+            : '';
+          throw new Error('收到 HTML 而非 JSON（HTTP ' + res.status + '，请求 ' + pair.url + '）。' + hint404);
+        }
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error('响应不是合法 JSON：' + (e && e.message ? e.message : String(e)));
+        }
+      }
+
+      function loadQr() {
+        showErr('');
+        qrWrap.innerHTML = '';
+
+        var primary = 'blade-business/ilink/login/start';
+        var fallback = 'ilink-qr/login/start';
+
+        fetchPost(primary)
+          .then(function (pair) {
+            var t = (pair.text || '').trim();
+            if (pair.res.status === 404 && t.charAt(0) === '<') {
+              return fetchPost(fallback);
+            }
+            return pair;
+          })
+          .then(pairToBody)
+          .then(function (body) {
+            if (!body || body.success === false) {
+              showErr((body && (body.msg || body.message)) || '请求失败');
+              return;
+            }
+            var data = body.data;
+            if (!data || !data.qrCode) {
+              showErr('未返回二维码');
+              return;
+            }
+            var text = String(data.qrCode);
+            if (/^data:image\//i.test(text)) {
+              var img = document.createElement('img');
+              img.src = text;
+              img.alt = '二维码';
+              qrWrap.appendChild(img);
+              return;
+            }
+            if (typeof QRCode === 'undefined') {
+              showErr('缺少二维码脚本：请确认已启动应用并能访问 /js/qrcode.min.js（文件在 src/main/resources/static/js/）。');
+              return;
+            }
+            var box = document.createElement('div');
+            qrWrap.appendChild(box);
+            var qr = new QRCode(box, {
+              width: 260,
+              height: 260,
+              colorDark: '#0f172a',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.H
+            });
+            qr.makeCode(text);
+          })
+          .catch(function (e) {
+            showErr(e && e.message ? e.message : String(e));
+          });
+      }
+
+      btn.addEventListener('click', loadQr);
+      loadQr();
+    })();
+  </script>
+</body>
+</html>

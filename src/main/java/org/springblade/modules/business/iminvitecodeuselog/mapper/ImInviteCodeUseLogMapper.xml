@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.business.iminvitecodeuselog.mapper.ImInviteCodeUseLogMapper">
+
+    <resultMap id="iminvitecodeuselogResultMap" type="org.springblade.modules.business.iminvitecodeuselog.entity.ImInviteCodeUseLog">
+        <result column="id" property="id"/>
+        <result column="invite_code_id" property="inviteCodeId"/>
+        <result column="invite_code" property="inviteCode"/>
+        <result column="group_id" property="groupId"/>
+        <result column="used_by_user_id" property="usedByUserId"/>
+        <result column="result_code" property="resultCode"/>
+        <result column="result_msg" property="resultMsg"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+</mapper>

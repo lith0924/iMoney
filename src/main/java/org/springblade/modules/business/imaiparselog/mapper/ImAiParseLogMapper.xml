@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.business.imaiparselog.mapper.ImAiParseLogMapper">
+
+    <resultMap id="imaiparselogResultMap" type="org.springblade.modules.business.imaiparselog.entity.ImAiParseLog">
+        <result column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="scope_type" property="scopeType"/>
+        <result column="group_id" property="groupId"/>
+        <result column="origin_text" property="originText"/>
+        <result column="suggest_type" property="suggestType"/>
+        <result column="suggest_amount" property="suggestAmount"/>
+        <result column="suggest_note" property="suggestNote"/>
+        <result column="confirm_status" property="confirmStatus"/>
+        <result column="related_op_id" property="relatedOpId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="confirmed_at" property="confirmedAt"/>
+    </resultMap>
+
+</mapper>

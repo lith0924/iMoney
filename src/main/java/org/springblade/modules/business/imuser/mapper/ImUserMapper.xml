@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.business.imuser.mapper.ImUserMapper">
+
+    <resultMap id="imuserResultMap" type="org.springblade.modules.business.imuser.entity.ImUser">
+        <result column="id" property="id"/>
+        <result column="wx_user_id" property="wxUserId"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+</mapper>

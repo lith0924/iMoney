@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.business.iminvitecode.mapper.ImInviteCodeMapper">
+
+    <resultMap id="iminvitecodeResultMap" type="org.springblade.modules.business.iminvitecode.entity.ImInviteCode">
+        <result column="id" property="id"/>
+        <result column="invite_code" property="inviteCode"/>
+        <result column="group_id" property="groupId"/>
+        <result column="inviter_user_id" property="inviterUserId"/>
+        <result column="invitee_alias" property="inviteeAlias"/>
+        <result column="max_use" property="maxUse"/>
+        <result column="used_count" property="usedCount"/>
+        <result column="status" property="status"/>
+        <result column="expires_at" property="expiresAt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="used_at" property="usedAt"/>
+    </resultMap>
+
+</mapper>

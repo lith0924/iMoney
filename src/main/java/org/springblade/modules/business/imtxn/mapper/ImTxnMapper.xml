@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.business.imtxn.mapper.ImTxnMapper">
+
+    <resultMap id="imtxnResultMap" type="org.springblade.modules.business.imtxn.entity.ImTxn">
+        <result column="id" property="id"/>
+        <result column="op_id" property="opId"/>
+        <result column="user_id" property="userId"/>
+        <result column="scope_type" property="scopeType"/>
+        <result column="group_id" property="groupId"/>
+        <result column="txn_type" property="txnType"/>
+        <result column="amount" property="amount"/>
+        <result column="note" property="note"/>
+        <result column="txn_time" property="txnTime"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="source_text" property="sourceText"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted_by" property="deletedBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springblade.modules.business.imexporttask.mapper.ImExportTaskMapper">
+
+    <resultMap id="imexporttaskResultMap" type="org.springblade.modules.business.imexporttask.entity.ImExportTask">
+        <result column="id" property="id"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="user_id" property="userId"/>
+        <result column="scope_type" property="scopeType"/>
+        <result column="group_id" property="groupId"/>
+        <result column="year_val" property="yearVal"/>
+        <result column="month_val" property="monthVal"/>
+        <result column="status" property="status"/>
+        <result column="progress" property="progress"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="create_time" property="createTime"/>
+        <result column="finished_at" property="finishedAt"/>
+    </resultMap>
+
+</mapper>
